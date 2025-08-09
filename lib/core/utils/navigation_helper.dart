@@ -5,6 +5,10 @@ class AppNavigator {
     Navigator.of(context).push(_createRoute(page));
   }
 
+  static void pushReplacement(BuildContext context, Widget page) {
+    Navigator.of(context).pushReplacement(_createRoute(page));
+  }
+
   static Route _createRoute(Widget page) {
     return PageRouteBuilder(
       transitionDuration: const Duration(milliseconds: 500), // Slower animation

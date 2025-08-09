@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:van_ber_passenger/core/theme/colors.dart';
-import 'package:van_ber_passenger/core/utils/navigation_helper.dart';
-import 'package:van_ber_passenger/home_screen.dart';
+import 'package:van_ber_passenger/features/on_boarding/on_boarding_screen_one.dart';
 import 'package:van_ber_passenger/features/splash/splash_screen.dart';
 
 void main() {
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
               secondary: AppColors.red,
             ),
           ),
-          home: const SplashScreen(),
+          home: const OnBoardingScreenOne(),
         );
       },
     );
