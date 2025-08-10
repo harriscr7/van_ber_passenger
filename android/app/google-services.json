@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "560965488283",
+    "project_id": "vanber-ca62a",
+    "storage_bucket": "vanber-ca62a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:560965488283:android:c36dbab6a9cc2bb2e2003e",
+        "android_client_info": {
+          "package_name": "com.example.van_ber_passenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "560965488283-gjhpijckois1kte2u38begps67s0b2u1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.van_ber_passenger",
+            "certificate_hash": "0cc905a6b0c463d8eb2f57dcfadf92afc15747b2"
+          }
+        },
+        {
+          "client_id": "560965488283-0sgrss9a07q5l810vr2raf53njtn7e7i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPhUPxl4Q92wKpcdXdH2c7YILb-i6FOZk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "560965488283-0sgrss9a07q5l810vr2raf53njtn7e7i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

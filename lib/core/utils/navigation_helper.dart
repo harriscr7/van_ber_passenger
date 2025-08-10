@@ -11,7 +11,7 @@ class AppNavigator {
 
   static Route _createRoute(Widget page) {
     return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 500), // Slower animation
+      transitionDuration: const Duration(milliseconds: 300), // Slower animation
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const begin = Offset(1.0, 0.0); // Slide from right

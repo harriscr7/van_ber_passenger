@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:van_ber_passenger/core/theme/colors.dart';
 import 'package:van_ber_passenger/core/utils/navigation_helper.dart';
-import 'package:van_ber_passenger/features/on_boarding/account_login_select_screen.dart';
+import 'package:van_ber_passenger/features/auth/account_login_select_screen.dart';
 import 'package:van_ber_passenger/features/on_boarding/on_boarding_screen_one.dart';
 import 'package:van_ber_passenger/features/splash/splash_controller.dart';
 
@@ -22,7 +22,7 @@ class _OnBoardingScreenThreeState extends State<OnBoardingScreenThree> {
         body: Stack(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(16.w, 13.h, 16.w, 13.h),
+              padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -46,7 +46,7 @@ class _OnBoardingScreenThreeState extends State<OnBoardingScreenThree> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 8.h),
+                        SizedBox(height: 6.h),
                         Text(
                           "Skip the cash — pay easily through Apple Pay, Samsung Pay, or your preferred method.",
                           style: TextStyle(
@@ -125,7 +125,7 @@ class _OnBoardingScreenThreeState extends State<OnBoardingScreenThree> {
 
             // Back button at top-left
             Positioned(
-              top: 13.h,
+              top: 16.h,
               left: 16.w,
               child: SizedBox(
                 height: 44.h,

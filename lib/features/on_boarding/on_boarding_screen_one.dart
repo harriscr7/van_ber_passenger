@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:van_ber_passenger/core/theme/colors.dart';
 import 'package:van_ber_passenger/core/utils/navigation_helper.dart';
-import 'package:van_ber_passenger/features/on_boarding/account_login_select_screen.dart';
+import 'package:van_ber_passenger/features/auth/account_login_select_screen.dart';
 import 'package:van_ber_passenger/features/on_boarding/on_boarding_screen_two.dart'; // your colors
 
 class OnBoardingScreenOne extends StatefulWidget {
@@ -19,7 +19,7 @@ class _OnBoardingScreenOneState extends State<OnBoardingScreenOne> {
     return SafeArea(
       child: Scaffold(
         body: Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 13.h, 16.w, 13.h),
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 16.h),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -46,7 +46,7 @@ class _OnBoardingScreenOneState extends State<OnBoardingScreenOne> {
                       textAlign: TextAlign.center,
                     ),
 
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 6.h),
 
                     Text(
                       "Pre-book your red minibus ride in advance and enjoy a smooth, stress-free commute.",
