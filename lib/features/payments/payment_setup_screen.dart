@@ -39,9 +39,10 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. First save the user profile
+      // 1. Save the user profile to Firebase (profile data was saved temporarily in account setup)
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      await userProvider.saveProfile();
+      await userProvider
+          .saveProfile(); // This will save to Firebase and mark profile as complete
 
       // 2. Then handle payment if not skipped
       if (!_skipPayment) {
@@ -53,11 +54,12 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
         final cardProvider = Provider.of<CardProvider>(context, listen: false);
         final expiryParts = _expiryController.text.split('/');
         final expiryMonth = expiryParts[0];
-        final expiryYear = expiryParts[1].length == 2
-            ? (int.parse(expiryParts[1]) > 80
-                  ? '19${expiryParts[1]}'
-                  : '20${expiryParts[1]}')
-            : expiryParts[1];
+        final expiryYear =
+            expiryParts[1].length == 2
+                ? (int.parse(expiryParts[1]) > 80
+                    ? '19${expiryParts[1]}'
+                    : '20${expiryParts[1]}')
+                : expiryParts[1];
 
         final paymentMethod = PaymentMethod(
           id: 'card_${DateTime.now().millisecondsSinceEpoch}',
@@ -129,63 +131,64 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  // User Info Card
-                  _buildUserInfoCard(context, userModel),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // User Info Card
+                    _buildUserInfoCard(context, userModel),
 
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        // Card Number Field
-                        _buildCardNumberField(),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Card Number Field
+                          _buildCardNumberField(),
 
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        // Cardholder Name
-                        _buildCardholderNameField(),
+                          // Cardholder Name
+                          _buildCardholderNameField(),
 
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        // Expiry and CVC Row
-                        _buildExpiryAndCvcRow(),
+                          // Expiry and CVC Row
+                          _buildExpiryAndCvcRow(),
 
-                        const SizedBox(height: 32),
+                          const SizedBox(height: 32),
 
-                        // Submit Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _completeRegistration,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                          // Submit Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _completeRegistration,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              'Save Payment Method',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              child: const Text(
+                                'Save Payment Method',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
     );
   }
 

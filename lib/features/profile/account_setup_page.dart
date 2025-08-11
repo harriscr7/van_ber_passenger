@@ -79,38 +79,57 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
   Future<void> _showMessage(String message) async {
     return showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Notice'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Notice'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
-  // In AccountSetupPage, modify the saveProfile method to just navigate:
+  // Save profile data temporarily to UserProvider before navigating to payment screen
   Future<void> saveProfile() async {
     if (!_isFormComplete) {
       await _showMessage('Please fill all the required information');
       return;
     }
 
-    if (mounted) {
-      AppNavigator.push(context, const AddPaymentScreen());
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+      // Save the user data temporarily (not to Firebase yet)
+      await userProvider.saveTemporaryProfile(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        email: _emailController.text.trim(),
+        region: _selectedRegion!,
+      );
+
+      if (mounted) {
+        AppNavigator.push(context, const AddPaymentScreen());
+      }
+    } catch (e) {
+      if (mounted) {
+        await _showMessage('Error saving profile: ${e.toString()}');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isGoogleAuth = _isGoogleAuth();
-    final buttonColor = _isFormComplete
-        ? AppColors.red
-        // ignore: deprecated_member_use
-        : AppColors.darkGray.withOpacity(0.05);
+    final buttonColor =
+        _isFormComplete
+            ? AppColors.red
+            // ignore: deprecated_member_use
+            : AppColors.darkGray.withOpacity(0.05);
 
     return Scaffold(
       body: SafeArea(
@@ -272,12 +291,13 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                             fontSize: 14.h,
                           ),
                         ),
-                        items: hongKongRegions.map((region) {
-                          return DropdownMenuItem<String>(
-                            value: region,
-                            child: Text(region),
-                          );
-                        }).toList(),
+                        items:
+                            hongKongRegions.map((region) {
+                              return DropdownMenuItem<String>(
+                                value: region,
+                                child: Text(region),
+                              );
+                            }).toList(),
                         onChanged: (value) {
                           setState(() {
                             _selectedRegion = value;
@@ -333,9 +353,8 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                       width: double.infinity,
                       height: 44.h,
                       child: ElevatedButton(
-                        onPressed: _isFormComplete && !_isLoading
-                            ? saveProfile
-                            : null,
+                        onPressed:
+                            _isFormComplete && !_isLoading ? saveProfile : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: buttonColor,
                           foregroundColor: AppColors.white,
@@ -343,24 +362,25 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                             borderRadius: BorderRadius.circular(6.r),
                           ),
                         ),
-                        child: _isLoading
-                            ? SizedBox(
-                                width: 20.w,
-                                height: 20.w,
-                                child: const CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                        child:
+                            _isLoading
+                                ? SizedBox(
+                                  width: 20.w,
+                                  height: 20.w,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                : Text(
+                                  'Next',
+                                  style: TextStyle(
+                                    fontSize: 14.h,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              )
-                            : Text(
-                                'Next',
-                                style: TextStyle(
-                                  fontSize: 14.h,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
                       ),
                     ),
                   ],

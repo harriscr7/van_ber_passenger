@@ -352,4 +352,37 @@ class UserProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  // Temporary profile storage method - saves to local state only
+  Future<void> saveTemporaryProfile({
+    required String firstName,
+    required String lastName,
+    required String phoneNumber,
+    required String region,
+    String? email,
+  }) async {
+    if (_user == null) {
+      _setError('No user to update');
+      return;
+    }
+
+    try {
+      // Update local user model only (not Firestore)
+      _user = _user!.copyWith(
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phoneNumber,
+        email: email ?? _user!.email,
+        region: region,
+        updatedAt: DateTime.now(),
+      );
+
+      notifyListeners();
+      debugPrint('✅ Temporary profile saved locally');
+    } catch (e) {
+      _setError('Failed to save temporary profile: ${e.toString()}');
+      debugPrint('❌ Error saving temporary profile: $e');
+      rethrow;
+    }
+  }
 }
