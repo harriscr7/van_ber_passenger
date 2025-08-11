@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:van_ber_passenger/core/theme/colors.dart';
 
 class PhoneAuthPage extends StatefulWidget {
   const PhoneAuthPage({super.key});
@@ -101,9 +104,9 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   }
 
   void _showSuccessMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Login Successful')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Login Successful')));
     // AuthWrapper will handle navigation based on profile completion
   }
 
@@ -117,70 +120,208 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Phone Login/Signup')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone (+92...)',
-                  hintText: '+923001234567',
-                ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter phone number';
-                  }
-                  // Basic phone number validation
-                  if (!RegExp(r'^\+[1-9]\d{1,14}$').hasMatch(value.trim())) {
-                    return 'Enter valid phone number with country code';
-                  }
-                  return null;
-                },
-              ),
-              if (_codeSent) ...[
-                const SizedBox(height: 20),
-                TextFormField(
-                  controller: _otpController,
-                  decoration: const InputDecoration(
-                    labelText: 'OTP Code',
-                    hintText: '123456',
+      body: Column(
+        children: [
+          // Gradient upper half with back arrow
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.35,
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    gradient: AppColors.darkRedToRed,
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter OTP';
-                    }
-                    if (value.length != 6) {
-                      return 'OTP must be 6 digits';
-                    }
-                    return null;
-                  },
+                ),
+                // Add this centered SVG
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/splash_screen_logo.svg', // Replace with your asset path
+                        height: 80.h, // Adjust size as needed
+                        width: 80.w,
+                      ),
+                      Text(
+                        "Van-ber",
+                        style: TextStyle(
+                          fontSize: 32.h,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SafeArea(
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
                 ),
               ],
-              const SizedBox(height: 20),
-              if (_loading)
-                const CircularProgressIndicator()
-              else
-                ElevatedButton(
-                  onPressed: _codeSent ? _verifyOTP : _sendOTP,
-                  child: Text(_codeSent ? 'Verify OTP' : 'Send OTP'),
-                ),
-              if (_codeSent) ...[
-                const SizedBox(height: 10),
-                TextButton(
-                  onPressed: _sendOTP,
-                  child: const Text('Resend OTP'),
-                ),
-              ],
-            ],
+            ),
           ),
-        ),
+          // Phone input field (outside gradient)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Text(
+                    "Log in using phone number or google",
+                    style: TextStyle(
+                      fontSize: 14.h,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  _buildPhoneNumberField(),
+                  if (_codeSent) ...[SizedBox(height: 20.h), _buildOTPField()],
+                  SizedBox(height: 24.h),
+                  if (_loading)
+                    const CircularProgressIndicator()
+                  else
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _codeSent ? _verifyOTP : _sendOTP,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.red,
+                          foregroundColor: AppColors.white,
+                        ),
+                        child: Text(_codeSent ? 'Verify OTP' : 'Continue'),
+                      ),
+                    ),
+                  if (_codeSent) ...[
+                    SizedBox(height: 14.h),
+                    TextButton(
+                      onPressed: _sendOTP,
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.red,
+                      ),
+                      child: const Text('Resend OTP'),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _buildPhoneNumberField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Mobile Number',
+          style: TextStyle(
+            fontSize: 14.h,
+            fontWeight: FontWeight.w400,
+            color: AppColors.black,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.darkGray.withOpacity(0.025),
+            borderRadius: BorderRadius.circular(6.r),
+            border: Border.all(
+              color: _phoneController.text.isEmpty
+                  ? Colors.transparent
+                  : _validatePhoneNumber(_phoneController.text)
+                  ? Colors.green
+                  : Colors.red,
+            ),
+          ),
+          child: TextFormField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              hintText: 'Country code + phone number (e.g. +923001234567)',
+              hintStyle: TextStyle(
+                color: AppColors.darkGray.withOpacity(0.6),
+                fontSize: 14.h,
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 12.h,
+              ),
+            ),
+            style: TextStyle(fontSize: 14.h, color: AppColors.black),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter phone number';
+              }
+              if (!_validatePhoneNumber(value)) {
+                return 'Enter valid phone number with country code';
+              }
+              return null;
+            },
+            onChanged: (_) => setState(() {}),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOTPField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'OTP Code',
+          style: TextStyle(
+            fontSize: 14.h,
+            fontWeight: FontWeight.w400,
+            color: AppColors.black,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.darkGray.withOpacity(0.025),
+            borderRadius: BorderRadius.circular(6.r),
+          ),
+          child: TextFormField(
+            controller: _otpController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: 'Enter 6-digit OTP',
+              hintStyle: TextStyle(
+                color: AppColors.darkGray.withOpacity(0.6),
+                fontSize: 14.h,
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 12.h,
+              ),
+            ),
+            style: TextStyle(fontSize: 14.h, color: AppColors.black),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter OTP';
+              }
+              if (value.length != 6) {
+                return 'OTP must be 6 digits';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool _validatePhoneNumber(String value) {
+    return RegExp(r'^\+[1-9]\d{1,14}$').hasMatch(value.trim());
   }
 }

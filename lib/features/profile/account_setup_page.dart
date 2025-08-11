@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:van_ber_passenger/core/constant/hongkong_regions.dart';
 import 'package:van_ber_passenger/core/theme/colors.dart';
 import 'package:van_ber_passenger/core/utils/navigation_helper.dart';
 import 'package:van_ber_passenger/features/auth/account_login_select_screen.dart';
 import 'package:van_ber_passenger/features/auth/firebase_auth.dart';
+import 'package:van_ber_passenger/features/payments/payment_setup_screen.dart';
 import 'package:van_ber_passenger/home_screen.dart';
 import 'package:van_ber_passenger/providers/user_provider.dart';
 
@@ -22,33 +24,9 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
 
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String? _selectedRegion;
   bool _acceptTerms = false;
-
-  // Hong Kong regions list
-  final List<String> _hongKongRegions = [
-    'Hong Kong Island',
-    'Central and Western',
-    'Wan Chai',
-    'Eastern',
-    'Southern',
-    'Kowloon',
-    'Yau Tsim Mong',
-    'Sham Shui Po',
-    'Kowloon City',
-    'Wong Tai Sin',
-    'Kwun Tong',
-    'New Territories',
-    'Tsuen Wan',
-    'Tuen Mun',
-    'Yuen Long',
-    'North',
-    'Tai Po',
-    'Sai Kung',
-    'Sha Tin',
-    'Outlying Islands',
-  ];
 
   @override
   void initState() {
@@ -114,44 +92,15 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
     );
   }
 
-  Future<void> _saveProfile() async {
+  // In AccountSetupPage, modify the saveProfile method to just navigate:
+  Future<void> saveProfile() async {
     if (!_isFormComplete) {
       await _showMessage('Please fill all the required information');
       return;
     }
 
-    setState(() => _isLoading = true);
-
-    try {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-      await userProvider.updateProfile(
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        phoneNumber: _phoneController.text.trim(),
-        email: _emailController.text.trim(),
-        region: _selectedRegion,
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile saved successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
-
-        AppNavigator.pushReplacement(context, const HomeScreen());
-      }
-    } catch (e) {
-      if (mounted) {
-        await _showMessage('Failed to save profile. Please try again.');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (mounted) {
+      AppNavigator.push(context, const AddPaymentScreen());
     }
   }
 
@@ -183,15 +132,6 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                       child: GestureDetector(
                         onTap: () async {
                           try {
-                            // Show loading dialog
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (dialogCtx) => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-
                             // Clear user provider state
                             await Provider.of<UserProvider>(
                               context,
@@ -237,9 +177,9 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                             ),
                           ),
                           child: SvgPicture.asset(
-                            "assets/icons/cross.svg",
-                            width: 20.w,
-                            height: 20.h,
+                            "assets/icons/back_arrow.svg",
+                            width: 28.w,
+                            height: 28.h,
                             color: AppColors.black, // icon color
                           ),
                         ),
@@ -298,8 +238,8 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                     // Phone Number
                     _buildTextField(
                       controller: _phoneController,
-                      label: 'Phone Number',
-                      hint: '+85212345678',
+                      label: 'Mobile Number',
+                      hint: 'Country code + phone number',
                       keyboardType: TextInputType.phone,
                       onChanged: (_) => setState(() {}),
                     ),
@@ -332,7 +272,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                             fontSize: 14.h,
                           ),
                         ),
-                        items: _hongKongRegions.map((region) {
+                        items: hongKongRegions.map((region) {
                           return DropdownMenuItem<String>(
                             value: region,
                             child: Text(region),
@@ -394,7 +334,7 @@ class _AccountSetupPageState extends State<AccountSetupPage> {
                       height: 44.h,
                       child: ElevatedButton(
                         onPressed: _isFormComplete && !_isLoading
-                            ? _saveProfile
+                            ? saveProfile
                             : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: buttonColor,

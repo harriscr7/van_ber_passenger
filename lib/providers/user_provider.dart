@@ -39,7 +39,9 @@ class UserProvider extends ChangeNotifier {
       if (existingUser != null) {
         // User exists in Firestore, use that data
         _user = existingUser;
-        debugPrint('✅ User loaded from Firestore: ${_user!.fullName} (ID: ${_user!.id})');
+        debugPrint(
+          '✅ User loaded from Firestore: ${_user!.fullName} (ID: ${_user!.id})',
+        );
       } else {
         // User doesn't exist in Firestore, create new user
         _user = await FirestoreService.createUserFromFirebaseAuth(firebaseUser);
@@ -48,10 +50,14 @@ class UserProvider extends ChangeNotifier {
 
       if (_user!.isProfileComplete) {
         _setState(UserState.authenticated);
-        debugPrint('✅ User profile is complete, setting state to authenticated');
+        debugPrint(
+          '✅ User profile is complete, setting state to authenticated',
+        );
       } else {
         _setState(UserState.profileIncomplete);
-        debugPrint('⚠️ User profile is incomplete, setting state to profileIncomplete');
+        debugPrint(
+          '⚠️ User profile is incomplete, setting state to profileIncomplete',
+        );
       }
     } catch (e) {
       debugPrint('❌ Error initializing user: $e');
@@ -62,7 +68,6 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  // Update user profile with region
   Future<void> updateProfile({
     required String firstName,
     required String lastName,
@@ -78,20 +83,32 @@ class UserProvider extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      // Update user profile using Firestore service
-      _user = await FirestoreService.completeUserProfile(
-        userId: _user!.id!,
+      // Update local user model first
+      _user = _user!.copyWith(
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber ?? _user!.phoneNumber,
         email: email ?? _user!.email,
         region: region ?? _user!.region,
+        updatedAt: DateTime.now(),
       );
 
+      // Then update in Firestore
+      await FirestoreService.updateUserFields(_user!.id!, {
+        'firstName': firstName,
+        'lastName': lastName,
+        'phoneNumber': phoneNumber ?? _user!.phoneNumber,
+        'email': email ?? _user!.email,
+        'region': region ?? _user!.region,
+        'updatedAt': DateTime.now(),
+      });
+
       _setState(UserState.authenticated);
-      debugPrint('User profile completed: ${_user!.fullName}');
+      debugPrint('✅ Profile updated successfully');
     } catch (e) {
       _setError('Failed to update profile: ${e.toString()}');
+      debugPrint('❌ Error updating profile: $e');
+      rethrow;
     } finally {
       _setLoading(false);
     }
@@ -104,8 +121,9 @@ class UserProvider extends ChangeNotifier {
       if (_user?.id != null) {
         debugPrint('🗑️ Clearing Firestore data for user: ${_user!.id}');
         // Add timeout to prevent hanging
-        await FirestoreService.clearUserData(_user!.id!)
-            .timeout(const Duration(seconds: 3));
+        await FirestoreService.clearUserData(
+          _user!.id!,
+        ).timeout(const Duration(seconds: 3));
       }
     } catch (e) {
       debugPrint('❌ Error clearing user data: $e');
@@ -266,5 +284,72 @@ class UserProvider extends ChangeNotifier {
     _errorMessage = null;
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> markUserAsEstablished() async {
+    if (_user == null) return;
+
+    try {
+      // Update in Firestore
+      await FirestoreService.updateUserFields(_user!.id!, {'isNewUser': false});
+
+      // Update local state
+      _user = _user!.copyWith(isNewUser: false);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error marking user as established: $e');
+      rethrow;
+    }
+  }
+
+  bool get isNewUserAccount {
+    if (_user == null) return false;
+    return _user!.isNewUser;
+  }
+
+  // Add this method to your UserProvider class
+  Future<void> saveProfile() async {
+    if (_user == null) {
+      _setError('No user to save');
+      return;
+    }
+
+    _setLoading(true);
+
+    try {
+      // First validate the required fields
+      if (_user!.firstName.isEmpty ||
+          _user!.lastName.isEmpty ||
+          _user!.phoneNumber.isEmpty ||
+          _user!.region.isEmpty) {
+        throw Exception('Required profile fields are missing');
+      }
+
+      // Update the user in Firestore
+      await FirestoreService.updateUserFields(_user!.id!, {
+        'firstName': _user!.firstName,
+        'lastName': _user!.lastName,
+        'phoneNumber': _user!.phoneNumber,
+        'email': _user!.email,
+        'region': _user!.region,
+        'isProfileComplete': true,
+        'updatedAt': DateTime.now(),
+      });
+
+      // Update local user model
+      _user = _user!.copyWith(
+        isProfileComplete: true,
+        updatedAt: DateTime.now(),
+      );
+
+      _setState(UserState.authenticated);
+      debugPrint('✅ Profile saved successfully');
+    } catch (e) {
+      _setError('Failed to save profile: ${e.toString()}');
+      debugPrint('❌ Error saving profile: $e');
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
   }
 }

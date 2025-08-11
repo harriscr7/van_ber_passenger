@@ -4,8 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:van_ber_passenger/core/theme/colors.dart';
 import 'package:van_ber_passenger/core/utils/navigation_helper.dart';
-import 'package:van_ber_passenger/home_screen.dart';
-import 'package:van_ber_passenger/features/splash/splash_controller.dart';
+import 'package:van_ber_passenger/core/auth/auth_wrapper.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,7 +17,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    SplashController(context).init();
+    Timer(const Duration(seconds: 3), () {
+      AppNavigator.pushReplacement(context, const AuthWrapper());
+    });
   }
 
   @override

@@ -4,8 +4,9 @@ class UserModel {
   final String lastName;
   final String phoneNumber;
   final String email;
-  final String region; // Added region field
+  final String region;
   final bool isProfileComplete;
+  final bool isNewUser; // Added field to track new users
   final String? signupMethod; // 'phone' or 'google'
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -16,8 +17,9 @@ class UserModel {
     required this.lastName,
     required this.phoneNumber,
     required this.email,
-    required this.region, // Added as required parameter
+    required this.region,
     this.isProfileComplete = false,
+    this.isNewUser = true, // Default to true for new users
     this.signupMethod,
     this.createdAt,
     this.updatedAt,
@@ -30,8 +32,9 @@ class UserModel {
       lastName: '',
       phoneNumber: '',
       email: '',
-      region: '', // Added empty region
+      region: '',
       isProfileComplete: false,
+      isNewUser: true,
     );
   }
 
@@ -42,7 +45,6 @@ class UserModel {
     String? displayName,
     String? phoneNumber,
   }) {
-    // Split display name into first and last name
     final nameParts = displayName?.split(' ') ?? ['', ''];
     final firstName = nameParts.isNotEmpty ? nameParts.first : '';
     final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
@@ -53,9 +55,10 @@ class UserModel {
       lastName: lastName,
       phoneNumber: phoneNumber ?? '',
       email: email,
-      region: '', // Empty region initially
+      region: '',
       isProfileComplete:
           phoneNumber?.isNotEmpty == true && firstName.isNotEmpty,
+      isNewUser: true, // New users from auth are always new initially
       signupMethod: 'google',
       createdAt: DateTime.now(),
     );
@@ -72,8 +75,9 @@ class UserModel {
       lastName: '',
       phoneNumber: phoneNumber,
       email: '',
-      region: '', // Empty region initially
+      region: '',
       isProfileComplete: false,
+      isNewUser: true, // New users from auth are always new initially
       signupMethod: 'phone',
       createdAt: DateTime.now(),
     );
@@ -86,8 +90,9 @@ class UserModel {
     String? lastName,
     String? phoneNumber,
     String? email,
-    String? region, // Added region
+    String? region,
     bool? isProfileComplete,
+    bool? isNewUser, // Added isNewUser to copyWith
     String? signupMethod,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -98,8 +103,9 @@ class UserModel {
       lastName: lastName ?? this.lastName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       email: email ?? this.email,
-      region: region ?? this.region, // Added region
+      region: region ?? this.region,
       isProfileComplete: isProfileComplete ?? this.isProfileComplete,
+      isNewUser: isNewUser ?? this.isNewUser, // Include isNewUser
       signupMethod: signupMethod ?? this.signupMethod,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -114,8 +120,9 @@ class UserModel {
       'lastName': lastName,
       'phoneNumber': phoneNumber,
       'email': email,
-      'region': region, // Added region
+      'region': region,
       'isProfileComplete': isProfileComplete,
+      'isNewUser': isNewUser, // Added to map
       'signupMethod': signupMethod,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
@@ -130,8 +137,9 @@ class UserModel {
       lastName: map['lastName'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
       email: map['email'] ?? '',
-      region: map['region'] ?? '', // Added region
+      region: map['region'] ?? '',
       isProfileComplete: map['isProfileComplete'] ?? false,
+      isNewUser: map['isNewUser'] ?? true, // Default to true if not specified
       signupMethod: map['signupMethod'],
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'])
@@ -159,7 +167,8 @@ class UserModel {
   @override
   String toString() {
     return 'UserModel(id: $id, firstName: $firstName, lastName: $lastName, phoneNumber: $phoneNumber, '
-        'email: $email, region: $region, isProfileComplete: $isProfileComplete)';
+        'email: $email, region: $region, isProfileComplete: $isProfileComplete, '
+        'isNewUser: $isNewUser)'; // Added isNewUser to toString
   }
 
   @override
@@ -171,8 +180,9 @@ class UserModel {
         other.lastName == lastName &&
         other.phoneNumber == phoneNumber &&
         other.email == email &&
-        other.region == region && // Added region comparison
-        other.isProfileComplete == isProfileComplete;
+        other.region == region &&
+        other.isProfileComplete == isProfileComplete &&
+        other.isNewUser == isNewUser; // Added isNewUser to equality check
   }
 
   @override
@@ -182,7 +192,8 @@ class UserModel {
         lastName.hashCode ^
         phoneNumber.hashCode ^
         email.hashCode ^
-        region.hashCode ^ // Added region to hash
-        isProfileComplete.hashCode;
+        region.hashCode ^
+        isProfileComplete.hashCode ^
+        isNewUser.hashCode; // Added isNewUser to hashCode
   }
 }

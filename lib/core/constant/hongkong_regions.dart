@@ -1,0 +1,23 @@
+// Hong Kong regions list
+final List<String> hongKongRegions = [
+  'Hong Kong Island',
+  'Central and Western',
+  'Wan Chai',
+  'Eastern',
+  'Southern',
+  'Kowloon',
+  'Yau Tsim Mong',
+  'Sham Shui Po',
+  'Kowloon City',
+  'Wong Tai Sin',
+  'Kwun Tong',
+  'New Territories',
+  'Tsuen Wan',
+  'Tuen Mun',
+  'Yuen Long',
+  'North',
+  'Tai Po',
+  'Sai Kung',
+  'Sha Tin',
+  'Outlying Islands',
+];
